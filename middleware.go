@@ -260,7 +260,7 @@ func (s *SAMLPlugin) Authorize(w http.ResponseWriter, r *http.Request, assertion
 				claimName = attr.Name
 			}
 			for _, value := range attr.Values {
-				claims.Attributes[claimName] = append(claims.Attributes[claimName], value.Value)
+				claims.Attributes[strings.ToLower(claimName)] = append(claims.Attributes[strings.ToLower(claimName)], value.Value)
 			}
 		}
 	}
