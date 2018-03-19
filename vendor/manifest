@@ -322,6 +322,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/stretchr/testify",
+			"repository": "https://github.com/stretchr/testify",
+			"vcs": "git",
+			"revision": "380174f817a09abe5982a82f94ad50938a8df65d",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/zenazn/goji",
 			"repository": "https://github.com/zenazn/goji",
 			"vcs": "git",
