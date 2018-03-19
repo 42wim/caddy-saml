@@ -3,6 +3,7 @@ package samlplugin
 
 import (
 	"context"
+	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
@@ -27,6 +28,19 @@ func (a Attributes) Get(key string) string {
 		return ""
 	}
 	return v[0]
+}
+
+// Get returns the first attribute named `key` or an empty string if
+// no such attributes is present.
+func (a Attributes) GetAll(key string) []string {
+	if a == nil {
+		return []string{}
+	}
+	v := a[strings.ToLower(key)]
+	if len(v) == 0 {
+		return []string{}
+	}
+	return v
 }
 
 type indexType int
