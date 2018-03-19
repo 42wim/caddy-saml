@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/crewjam/saml"
@@ -96,7 +97,7 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 	}
 
 	for k, v := range s.Map {
-		if r.URL.Path == k {
+		if strings.HasPrefix(r.URL.Path, k) {
 			if token := s.GetAuthorizationToken(r); token != nil {
 				r = r.WithContext(WithToken(r.Context(), token))
 				if isAuthorized(v, token) {
