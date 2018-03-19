@@ -119,7 +119,44 @@ func dumpAttributes(v []string) bool {
 	return false
 }
 
+func isAuthorizedAnd(v []string, token *AuthorizationToken) bool {
+	auth := true
+	for _, acl := range v {
+		split := strings.Fields(acl)
+		switch split[0] {
+		case "valid-user":
+			auth = auth && true
+		case "require-all":
+		default:
+			if len(split) < 2 {
+				return false
+			}
+			subauth := false
+			for _, entry := range token.Attributes.GetAll(split[0]) {
+				if entry == split[1] {
+					subauth = true
+					continue
+				}
+			}
+			auth = auth && subauth
+		}
+	}
+	return auth
+}
+
+func hasRequireAll(v []string) bool {
+	for _, acl := range v {
+		if strings.Contains(acl, "require-all") {
+			return true
+		}
+	}
+	return false
+}
+
 func isAuthorized(v []string, token *AuthorizationToken) bool {
+	if hasRequireAll(v) {
+		return isAuthorizedAnd(v, token)
+	}
 	for _, acl := range v {
 		split := strings.Fields(acl)
 		switch split[0] {
