@@ -123,27 +123,16 @@ func isAuthorized(v []string, token *AuthorizationToken) bool {
 	for _, acl := range v {
 		split := strings.Fields(acl)
 		switch split[0] {
-		case "uid":
-			{
-				uids := token.Attributes.Get("eduPersonPrincipalName")
-				for _, uid := range strings.Fields(uids) {
-					if strings.HasPrefix(uid, split[1]+"@") {
-						return true
-					}
-				}
-			}
-		case "mail":
-			{
-				mails := token.Attributes.Get("mail")
-				for _, mail := range strings.Fields(mails) {
-					if mail == split[1] {
-						return true
-					}
-				}
-			}
 		case "valid-user":
-			{
-				return true
+			return true
+		default:
+			if len(split) < 2 {
+				return false
+			}
+			for _, entry := range token.Attributes.GetAll(split[0]) {
+				if entry == split[1] {
+					return true
+				}
 			}
 		}
 	}
