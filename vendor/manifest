@@ -1,0 +1,368 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/RobotsAndPencils/go-saml",
+			"repository": "https://github.com/RobotsAndPencils/go-saml",
+			"vcs": "git",
+			"revision": "fb13cb52a46b55a9f20e6d497658dd494c7c1ef1",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/beevik/etree",
+			"repository": "https://github.com/beevik/etree",
+			"vcs": "git",
+			"revision": "af219c0c7ea1b67ec263c0b1b1b96d284a9181ce",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/crewjam/saml",
+			"repository": "https://github.com/crewjam/saml",
+			"vcs": "git",
+			"revision": "e231b7a1204a93c343c1a5fa2374ca2f6572f715",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/davecgh/go-spew/spew",
+			"repository": "https://github.com/davecgh/go-spew",
+			"vcs": "git",
+			"revision": "8991bc29aa16c548c550c7ff78260e27b9ab7c73",
+			"branch": "master",
+			"path": "/spew",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/dchest/uniuri",
+			"repository": "https://github.com/dchest/uniuri",
+			"vcs": "git",
+			"revision": "8902c56451e9b58ff940bbe5fec35d5f9c04584a",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/dgrijalva/jwt-go",
+			"repository": "https://github.com/dgrijalva/jwt-go",
+			"vcs": "git",
+			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/goji/param",
+			"repository": "https://github.com/goji/param",
+			"vcs": "git",
+			"revision": "d7f49fd7d1ed53fd562e737a8b5bbcc7e3d925e2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/api",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "/api",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/helper/compressutil",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "helper/compressutil",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/helper/jsonutil",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "helper/jsonutil",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/helper/parseutil",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "helper/parseutil",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/helper/strutil",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "helper/strutil",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/fatih/structs",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/fatih/structs",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/golang/snappy",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/golang/snappy",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/hashicorp/errwrap",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/hashicorp/errwrap",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/hashicorp/go-cleanhttp",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/hashicorp/go-cleanhttp",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/hashicorp/go-multierror",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/hashicorp/go-multierror",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/hashicorp/go-rootcerts",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/hashicorp/go-rootcerts",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/hashicorp/hcl",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/hashicorp/hcl",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/mitchellh/go-homedir",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/mitchellh/go-homedir",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/mitchellh/mapstructure",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/mitchellh/mapstructure",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/ryanuber/go-glob",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/ryanuber/go-glob",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/github.com/sethgrid/pester",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/github.com/sethgrid/pester",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/net/http2",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/net/http2",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/net/idna",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/net/idna",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/net/lex/httplex",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/net/lex/httplex",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/text/secure/bidirule",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/text/secure/bidirule",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/text/transform",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/text/transform",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/text/unicode/bidi",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/text/unicode/bidi",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/hashicorp/vault/vendor/golang.org/x/text/unicode/norm",
+			"repository": "https://github.com/hashicorp/vault",
+			"vcs": "git",
+			"revision": "1aef2cb1c53fac24d1f6f93c6c1ec1244775be99",
+			"branch": "master",
+			"path": "vendor/golang.org/x/text/unicode/norm",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/jonboulle/clockwork",
+			"repository": "https://github.com/jonboulle/clockwork",
+			"vcs": "git",
+			"revision": "bcac9884e7502bb2b474c0339d889cb981a2f27f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kardianos/osext",
+			"repository": "https://github.com/kardianos/osext",
+			"vcs": "git",
+			"revision": "ae77be60afb1dcacde03767a8c37337fad28ac14",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kr/pretty",
+			"repository": "https://github.com/kr/pretty",
+			"vcs": "git",
+			"revision": "cfb55aafdaf3ec08f0db22699ab822c50091b1c4",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kr/pty",
+			"repository": "https://github.com/kr/pty",
+			"vcs": "git",
+			"revision": "282ce0e5322c82529687d609ee670fac7c7d917c",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/kr/text",
+			"repository": "https://github.com/kr/text",
+			"vcs": "git",
+			"revision": "7cafcd837844e784b526369c9bce262804aebc60",
+			"branch": "main",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/nu7hatch/gouuid",
+			"repository": "https://github.com/nu7hatch/gouuid",
+			"vcs": "git",
+			"revision": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/russellhaering/goxmldsig",
+			"repository": "https://github.com/russellhaering/goxmldsig",
+			"vcs": "git",
+			"revision": "a348271703b2f18f06407858abd235ccbfebf33f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/zenazn/goji",
+			"repository": "https://github.com/zenazn/goji",
+			"vcs": "git",
+			"revision": "4a0a089f56dffba35ba29a37303bbc3e3e496f96",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/bcrypt",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "374053ea96cb300f8671b8d3b07edeeb06e203b4",
+			"branch": "master",
+			"path": "bcrypt",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/blowfish",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "374053ea96cb300f8671b8d3b07edeeb06e203b4",
+			"branch": "master",
+			"path": "blowfish",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ripemd160",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "374053ea96cb300f8671b8d3b07edeeb06e203b4",
+			"branch": "master",
+			"path": "/ripemd160",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/check.v1",
+			"repository": "https://gopkg.in/check.v1",
+			"vcs": "git",
+			"revision": "20d25e2804050c1cd24a7eea1e7a6447dd0e74ec",
+			"branch": "v1",
+			"notests": true
+		}
+	]
+}
