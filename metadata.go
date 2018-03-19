@@ -14,7 +14,7 @@ func (s *SAMLPlugin) GetEntityDescriptor() (string, error) {
 		DS:       "http://www.w3.org/2000/09/xmldsig#",
 		XMLNS:    "urn:oasis:names:tc:SAML:2.0:metadata",
 		MD:       "urn:oasis:names:tc:SAML:2.0:metadata",
-		EntityId: "https://" + s.ServiceProvider.MetadataURL.Hostname(),
+		EntityId: "https://" + s.ServiceProvider.MetadataURL.Hostname() + s.ServiceProvider.MetadataURL.Path,
 
 		Extensions: Extensions{
 			XMLName: xml.Name{
