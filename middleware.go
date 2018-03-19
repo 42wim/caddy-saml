@@ -112,6 +112,7 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 				}
 			} else {
 				s.RequireAccount(w, r)
+				return 302, nil
 			}
 		}
 	}
