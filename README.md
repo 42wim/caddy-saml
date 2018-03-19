@@ -10,10 +10,10 @@ Our usecase is to use caddy as a reverse proxy with shibboleth support (instead 
 ```
 https://yourdomain.com:443 {
     saml {
-        entityid https://yourdomain.com/saml/metadata
-        idpmetadata https://youridp.com/download/metadata/metadata-yourdomain.xml
-        vaultserver https://vault.yourdomain.com
-        vaultpath secret/projects/caddy-saml/yourdomain.com
+        root_url https://yourdomain.com
+        idp_metadata https://youridp.com/download/metadata/metadata-yourdomain.xml
+        vault_server https://vault.yourdomain.com
+        vault_path secret/projects/caddy-saml/yourdomain.com
         /path1 valid-user
         /path2 mail email@domain.com
         /hello uid testuid

@@ -42,20 +42,20 @@ func setup(c *caddy.Controller) (err error) {
 				acl := c.Val()
 				sMap[url] = append(sMap[url], what+" "+acl)
 			}
-			if c.Val() == "vaultpath" {
+			if c.Val() == "vault_path" {
 				c.NextArg()
 				vaultPath = c.Val()
 			}
-			if c.Val() == "vaultserver" {
+			if c.Val() == "vault_server" {
 				c.NextArg()
 				vaultServer = c.Val()
 			}
-			if c.Val() == "entityid" {
+			if c.Val() == "root_url" {
 				c.NextArg()
 				entityID = c.Val()
 				rootURL, _ = url.Parse(entityID)
 			}
-			if c.Val() == "idpmetadata" {
+			if c.Val() == "idp_metadata" {
 				c.NextArg()
 				idpMetadataURL, _ = url.Parse(c.Val())
 			}
