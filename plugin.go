@@ -29,6 +29,7 @@ func setup(c *caddy.Controller) (err error) {
 	)
 
 	options.CookieSecure = true
+	options.CookieName = "__Host-cddsml-token"
 	for c.Next() {
 		if s != nil {
 			return c.Err("Cannot define saml more than once per server")
@@ -64,6 +65,10 @@ func setup(c *caddy.Controller) (err error) {
 			if c.Val() == "cookie_insecure" {
 				c.NextArg()
 				options.CookieSecure = false
+			}
+			if c.Val() == "cookie_name" {
+				c.NextArg()
+				options.CookieName = c.Val()
 			}
 		}
 

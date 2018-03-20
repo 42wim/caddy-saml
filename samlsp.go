@@ -32,6 +32,7 @@ type Options struct {
 	CookieMaxAge      time.Duration
 	CookieSecure      bool
 	ForceAuthn        bool
+	CookieName        string
 }
 
 // New creates a new SAMLPlugin
@@ -66,9 +67,9 @@ func New(opts Options) (*SAMLPlugin, error) {
 
 	cookieStore := ClientCookies{
 		ServiceProvider: &s.ServiceProvider,
-		Name:            defaultCookieName,
-		Domain:          opts.URL.Host,
-		Secure:          opts.CookieSecure,
+		Name:            opts.CookieName,
+		//Domain:          opts.URL.Host,
+		Secure: opts.CookieSecure,
 	}
 	s.ClientState = &cookieStore
 	s.ClientToken = &cookieStore
