@@ -22,12 +22,13 @@ var vaultServer string
 
 func setup(c *caddy.Controller) (err error) {
 	var (
-		s                       *SAMLPlugin
-		sMap                    map[string][]string
-		vaultPath, entityID     string
-		rootURL, idpMetadataURL *url.URL
+		s                   *SAMLPlugin
+		sMap                map[string][]string
+		vaultPath, entityID string
+		options             Options
 	)
 
+	options.CookieSecure = true
 	for c.Next() {
 		if s != nil {
 			return c.Err("Cannot define saml more than once per server")
@@ -53,11 +54,16 @@ func setup(c *caddy.Controller) (err error) {
 			if c.Val() == "root_url" {
 				c.NextArg()
 				entityID = c.Val()
-				rootURL, _ = url.Parse(entityID)
+				myurl, _ := url.Parse(entityID)
+				options.URL = *myurl
 			}
 			if c.Val() == "idp_metadata" {
 				c.NextArg()
-				idpMetadataURL, _ = url.Parse(c.Val())
+				options.IDPMetadataURL, _ = url.Parse(c.Val())
+			}
+			if c.Val() == "cookie_insecure" {
+				c.NextArg()
+				options.CookieSecure = false
 			}
 		}
 
@@ -76,21 +82,15 @@ func setup(c *caddy.Controller) (err error) {
 		key, _ := pem.Decode([]byte(keypem))
 		cert, _ := pem.Decode([]byte(certpem))
 
-		x509Cert, err := x509.ParseCertificate(cert.Bytes)
+		options.Certificate, err = x509.ParseCertificate(cert.Bytes)
 		if err != nil {
 			panic(err) // TODO handle error
 		}
-		privKey, err := x509.ParsePKCS1PrivateKey(key.Bytes)
+		options.Key, err = x509.ParsePKCS1PrivateKey(key.Bytes)
 		if err != nil {
 			panic(err) // TODO handle error
 		}
-		s, _ = New(Options{
-			URL:            *rootURL,
-			Key:            privKey,
-			Certificate:    x509Cert,
-			IDPMetadataURL: idpMetadataURL,
-		})
-
+		s, _ = New(options)
 		s.Map = sMap
 	}
 
