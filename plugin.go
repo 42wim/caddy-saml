@@ -5,6 +5,7 @@ import (
 	"encoding/pem"
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -24,6 +25,7 @@ func setup(c *caddy.Controller) (err error) {
 	var (
 		s                   *SAMLPlugin
 		sMap                map[string][]string
+		certPath, keyPath   string
 		vaultPath, entityID string
 		options             Options
 	)
@@ -52,6 +54,12 @@ func setup(c *caddy.Controller) (err error) {
 				c.NextArg()
 				vaultServer = c.Val()
 			}
+			if c.Val() == "disk" {
+				c.NextArg()
+				certPath = c.Val()
+				c.NextArg()
+				keyPath = c.Val()
+			}
 			if c.Val() == "root_url" {
 				c.NextArg()
 				entityID = c.Val()
@@ -72,20 +80,36 @@ func setup(c *caddy.Controller) (err error) {
 			}
 		}
 
-		// use asset data
-		var keypem, certpem string
-		keypem, err = getVault(vaultPath + "/sp-key")
-		if err != nil {
-			panic("Vault error: could not get" + vaultPath)
-		}
+		var key, cert *pem.Block
 
-		certpem, err = getVault(vaultPath + "/sp-cert")
-		if err != nil {
-			panic("Vault error: could not get" + vaultPath)
+		if certPath != "" && keyPath != "" {
+			keypem, err := ioutil.ReadFile(keyPath)
+			if err != nil {
+				panic("Vault error: could not get" + keyPath)
+			}
+			certpem, err := ioutil.ReadFile(certPath)
+			if err != nil {
+				panic("Vault error: could not get" + certPath)
+			}
+			key, _ = pem.Decode(keypem)
+			cert, _ = pem.Decode(certpem)
 		}
+		if vaultPath != "" && vaultServer != "" {
+			// use asset data
+			var keypem, certpem string
+			keypem, err = getVault(vaultPath + "/sp-key")
+			if err != nil {
+				panic("Vault error: could not get" + vaultPath)
+			}
 
-		key, _ := pem.Decode([]byte(keypem))
-		cert, _ := pem.Decode([]byte(certpem))
+			certpem, err = getVault(vaultPath + "/sp-cert")
+			if err != nil {
+				panic("Vault error: could not get" + vaultPath)
+			}
+			key, _ = pem.Decode([]byte(keypem))
+			cert, _ = pem.Decode([]byte(certpem))
+
+		}
 
 		options.Certificate, err = x509.ParseCertificate(cert.Bytes)
 		if err != nil {

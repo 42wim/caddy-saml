@@ -6,9 +6,28 @@ Based heavily on https://github.com/crewjam/saml and https://github.com/RobotsAn
 ## Usecase
 Our usecase is to use caddy as a reverse proxy with shibboleth support (instead of using apache,mod_shib and shibd)
 
-## Example
+## Example with cert from disk and tls enabled
 ```
-https://yourdomain.com:443 {
+https://:443 {
+    tls /path/cert.pem /path/key.pem
+    saml {
+        root_url https://yourdomain.com
+        disk /path/cert.pem /path/key.pem
+        idp_metadata https://youridp.com/download/metadata/metadata-yourdomain.xml
+        /path1 valid-user
+        /path2 mail email@domain.com
+        /hello uid testuid
+        /hello dump-attributes
+ }
+proxy /hello https://backendserver.com
+proxy /path1 http://backend2.com:8080
+}
+```
+
+
+## Example with cert from vault
+```
+http://:80 {
     saml {
         root_url https://yourdomain.com
         idp_metadata https://youridp.com/download/metadata/metadata-yourdomain.xml
