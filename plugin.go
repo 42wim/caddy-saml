@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -77,6 +78,10 @@ func setup(c *caddy.Controller) (err error) {
 			if c.Val() == "cookie_name" {
 				c.NextArg()
 				options.CookieName = c.Val()
+			}
+			if c.Val() == "cookie_max_age" {
+				c.NextArg()
+				options.CookieMaxAge, _ = time.ParseDuration(c.Val())
 			}
 		}
 
