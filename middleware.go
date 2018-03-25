@@ -2,16 +2,21 @@
 package samlplugin
 
 import (
+	"crypto/rand"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/crewjam/saml"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
@@ -52,8 +57,26 @@ type SAMLPlugin struct {
 	TokenMaxAge       time.Duration
 	ClientState       ClientState
 	ClientToken       ClientToken
+	EnableSessions    bool
 	Map               map[string][]string
 	next              httpserver.Handler
+	Db                *DB
+	cache
+}
+
+type cache struct {
+	cacheMap map[string]Session
+	sync.RWMutex
+}
+
+type Session struct {
+	gorm.Model
+	Path      string
+	Expire    time.Time
+	Token     []byte `gorm:"size:20000"`
+	NameID    string
+	AppID     string
+	SessionID string
 }
 
 var jwtSigningMethod = jwt.SigningMethodHS256
@@ -73,7 +96,7 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 	if r.URL.Path == s.ServiceProvider.MetadataURL.Path {
 		md, err := s.GetEntityDescriptor()
 		if err != nil {
-			fmt.Printf("GetEntityDescriptor %#v", err)
+			//fmt.Printf("GetEntityDescriptor %#v", err)
 			return 500, err
 		}
 		fmt.Fprintln(w, md)
@@ -82,6 +105,10 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 
 	if r.URL.Path == s.ServiceProvider.AcsURL.Path {
 		r.ParseForm()
+		/*
+			res, _ := base64.StdEncoding.DecodeString(r.PostForm.Get("SAMLResponse"))
+			fmt.Println(string(res))
+		*/
 		assertion, err := s.ServiceProvider.ParseResponse(r, s.getPossibleRequestIDs(r))
 		if err != nil {
 			if parseErr, ok := err.(*saml.InvalidResponseError); ok {
@@ -96,23 +123,62 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 		return s.next.ServeHTTP(w, r)
 	}
 
+	if r.URL.Path == "/saml/logout" {
+		//fmt.Println("LOGOUT")
+		cookies := s.ClientState.GetSessions(r)
+		session := s.findSession(cookies)
+		s.ClientState.DeleteSession(w, r, session.AppID)
+		s.clearSession(session)
+		return 302, nil
+	}
+
 	for k, v := range s.Map {
 		if strings.HasPrefix(r.URL.Path, k) {
-			if token := s.GetAuthorizationToken(r); token != nil {
-				r = r.WithContext(WithToken(r.Context(), token))
-				if isAuthorized(v, token) {
-					setHeaders(r, token)
-					if dumpAttributes(v) {
-						spew.Fdump(w, token)
-						return 200, nil
-					}
-					return s.next.ServeHTTP(w, r)
-				} else {
-					return 403, nil
+			var token *AuthorizationToken
+			if s.EnableSessions {
+				cookies := s.ClientState.GetSessions(r)
+
+				// no cookies
+				if len(cookies) == 0 {
+					//fmt.Println("no cookies")
+					s.RequireAccount(w, r)
+					return 302, nil
+				}
+
+				// find our session base on the cookies
+				session := s.findSession(cookies)
+
+				// did not find a session
+				if session.SessionID == "" {
+					//fmt.Println("did not found a session")
+					s.RequireAccount(w, r)
+					return 302, nil
+				}
+
+				err := json.Unmarshal(session.Token, &token)
+				if err != nil {
+					//fmt.Println("unmarshalling failed", err)
+					s.clearSession(session)
+					s.RequireAccount(w, r)
+					return 302, nil
 				}
 			} else {
-				s.RequireAccount(w, r)
-				return 302, nil
+				if token = s.GetAuthorizationToken(r); token != nil {
+					r = r.WithContext(WithToken(r.Context(), token))
+				} else {
+					s.RequireAccount(w, r)
+					return 302, nil
+				}
+			}
+			if isAuthorized(v, token) {
+				setHeaders(r, token)
+				if dumpAttributes(v) {
+					spew.Fdump(w, token)
+					return 200, nil
+				}
+				return s.next.ServeHTTP(w, r)
+			} else {
+				return 403, nil
 			}
 		}
 	}
@@ -270,7 +336,32 @@ func (s *SAMLPlugin) Authorize(w http.ResponseWriter, r *http.Request, assertion
 		panic(err)
 	}
 
-	s.ClientToken.SetToken(w, r, signedToken, s.TokenMaxAge)
+	if s.EnableSessions {
+		//		fmt.Println("session enabled")
+		id1 := sessionId()
+		id2 := sessionId()
+		s.ClientState.SetSession(w, r, id1[0:20], id2)
+		cm, err := json.Marshal(claims)
+		if err != nil {
+			// TODO handle this. shouldn't happen ..
+			//			fmt.Println("marshall failed")
+		}
+		session := Session{Expire: time.Now().Add(s.TokenMaxAge), Token: cm, NameID: assertion.Subject.NameID.Value, SessionID: id2, AppID: id1[0:20]}
+
+		s.cache.Lock()
+		s.cacheMap[id1[0:20]] = session
+		s.cache.Unlock()
+
+		// if database configured
+		if s.Db != nil {
+			myerr := s.Db.Create(&session)
+			if len(myerr.GetErrors()) > 0 {
+				fmt.Printf("gorm error %#v\n", myerr.GetErrors())
+			}
+		}
+	} else {
+		s.ClientToken.SetToken(w, r, signedToken, s.TokenMaxAge)
+	}
 	http.Redirect(w, r, redirectURI, http.StatusFound)
 }
 
@@ -338,4 +429,80 @@ func RequireAttribute(name, value string) func(http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(fn)
 	}
+}
+
+func sessionId() string {
+	b := make([]byte, 32)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		return ""
+	}
+	return base64.URLEncoding.EncodeToString(b)
+}
+
+func (s *SAMLPlugin) findSession(cookies map[string]string) *Session {
+	// check memorycache
+	session := s.searchCache(cookies)
+
+	// check database
+	if session.SessionID == "" && s.Db != nil {
+		session = s.searchDb(cookies)
+	}
+
+	return session
+}
+
+func (s *SAMLPlugin) clearSession(session *Session) error {
+	//fmt.Println("clearing session from memory")
+	s.cache.Lock()
+	delete(s.cacheMap, session.AppID)
+	s.cache.Unlock()
+
+	// only if we have a database configured
+	if s.Db != nil {
+		//fmt.Println("deleting from db")
+		err := s.Db.Where(&Session{AppID: session.AppID}).Delete(Session{})
+		if len(err.GetErrors()) > 0 {
+			fmt.Printf("delete %#v", err.GetErrors())
+		}
+	}
+	return nil
+}
+
+func (s *SAMLPlugin) searchCache(cookies map[string]string) *Session {
+	session := &Session{}
+
+	// check all the cookies
+	s.cache.RLock()
+	//fmt.Println("checking in cookiecache", cookies)
+	for cookie := range cookies {
+		if ts, ok := s.cacheMap[cookie]; ok {
+			if ts.Expire.Before(time.Now()) {
+				continue
+			}
+			session = &ts
+			break
+		}
+	}
+	s.cache.RUnlock()
+	return session
+}
+
+func (s *SAMLPlugin) searchDb(cookies map[string]string) *Session {
+	session := &Session{}
+	//fmt.Println("looking up in database")
+	for cookie := range cookies {
+		err := s.Db.Where(&Session{AppID: cookie}).First(&session)
+		if len(err.GetErrors()) > 0 {
+			fmt.Printf("searchDb errors: %#v", err.GetErrors())
+		}
+		if session.SessionID != "" {
+			//spew.Dump(session)
+			//fmt.Println("saving session back in cache")
+			s.cache.Lock()
+			s.cacheMap[session.AppID] = *session
+			s.cache.Unlock()
+			break
+		}
+	}
+	return session
 }

@@ -83,6 +83,18 @@ func setup(c *caddy.Controller) (err error) {
 				c.NextArg()
 				options.CookieMaxAge, _ = time.ParseDuration(c.Val())
 			}
+			if c.Val() == "sessions_enable" {
+				c.NextArg()
+				options.EnableSessions = true
+			}
+			if c.Val() == "mysql" {
+				c.NextArg()
+				options.DbURI = c.Val()
+			}
+		}
+
+		if options.DbURI != "" {
+			options.EnableSessions = true
 		}
 
 		var key, cert *pem.Block

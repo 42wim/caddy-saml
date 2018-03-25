@@ -33,6 +33,8 @@ type Options struct {
 	CookieSecure      bool
 	ForceAuthn        bool
 	CookieName        string
+	EnableSessions    bool
+	DbURI             string
 }
 
 // New creates a new SAMLPlugin
@@ -63,6 +65,8 @@ func New(opts Options) (*SAMLPlugin, error) {
 		},
 		AllowIDPInitiated: opts.AllowIDPInitiated,
 		TokenMaxAge:       tokenMaxAge,
+		EnableSessions:    opts.EnableSessions,
+		Db:                NewDB(opts.DbURI),
 	}
 
 	cookieStore := ClientCookies{
@@ -73,6 +77,7 @@ func New(opts Options) (*SAMLPlugin, error) {
 	}
 	s.ClientState = &cookieStore
 	s.ClientToken = &cookieStore
+	s.cacheMap = make(map[string]Session)
 
 	// fetch the IDP metadata if needed.
 	if opts.IDPMetadataURL == nil {

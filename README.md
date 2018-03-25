@@ -15,6 +15,8 @@ https://:443 {
         disk /path/cert.pem /path/key.pem
         idp_metadata https://youridp.com/download/metadata/metadata-yourdomain.xml
         /path1 valid-user
+        /path1 mail email2@domain.com
+        /path1 require-all
         /path2 mail email@domain.com
         /hello uid testuid
         /hello dump-attributes
@@ -42,6 +44,29 @@ proxy /hello https://backendserver.com
 proxy /path1 http://backend2.com:8080
 }
 ```
+
+## Example with cert from disk and tls and mysql sessions enabled
+```
+https://:443 {
+    tls /path/cert.pem /path/key.pem
+    saml {
+        mysql login:password@tcp(mysql.hostname.com)/caddysaml
+        root_url https://yourdomain.com
+        disk /path/cert.pem /path/key.pem
+        idp_metadata https://youridp.com/download/metadata/metadata-yourdomain.xml
+        /path1 valid-user
+        /path1 mail email2@domain.com
+        /path1 require-all
+        /path2 mail email@domain.com
+        /hello uid testuid
+        /hello dump-attributes
+ }
+proxy /hello https://backendserver.com
+proxy /path1 http://backend2.com:8080
+}
+```
+
+
 
 ## Issues
 The OpenSSL default format for private keys is PKCS-8. We only support PKCS-1 private keys.
