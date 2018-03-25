@@ -2,10 +2,26 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/PuerkitoBio/goquery",
+			"repository": "https://github.com/PuerkitoBio/goquery",
+			"vcs": "git",
+			"revision": "61aa1975b1f7856927c526b0e0cd8c8b3a3030d0",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/RobotsAndPencils/go-saml",
 			"repository": "https://github.com/RobotsAndPencils/go-saml",
 			"vcs": "git",
 			"revision": "fb13cb52a46b55a9f20e6d497658dd494c7c1ef1",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/andybalholm/cascadia",
+			"repository": "https://github.com/andybalholm/cascadia",
+			"vcs": "git",
+			"revision": "901648c87902174f774fac311d7f176f8647bdaa",
 			"branch": "master",
 			"notests": true
 		},
@@ -43,10 +59,26 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/denisenkom/go-mssqldb",
+			"repository": "https://github.com/denisenkom/go-mssqldb",
+			"vcs": "git",
+			"revision": "270bc3860bb94dd3a3ffd047377d746c5e276726",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/dgrijalva/jwt-go",
 			"repository": "https://github.com/dgrijalva/jwt-go",
 			"vcs": "git",
 			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/go-sql-driver/mysql",
+			"repository": "https://github.com/go-sql-driver/mysql",
+			"vcs": "git",
+			"revision": "1a676ac6e4dce68e9303a1800773861350374a9e",
 			"branch": "master",
 			"notests": true
 		},
@@ -266,6 +298,22 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/jinzhu/gorm",
+			"repository": "https://github.com/jinzhu/gorm",
+			"vcs": "git",
+			"revision": "52c5c8127cf4aeffde3e0aa9222640832075a90f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/jinzhu/inflection",
+			"repository": "https://github.com/jinzhu/inflection",
+			"vcs": "git",
+			"revision": "04140366298a54a039076d798123ffa108fff46c",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/jonboulle/clockwork",
 			"repository": "https://github.com/jonboulle/clockwork",
 			"vcs": "git",
@@ -303,6 +351,22 @@
 			"vcs": "git",
 			"revision": "7cafcd837844e784b526369c9bce262804aebc60",
 			"branch": "main",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"vcs": "git",
+			"revision": "b2004221932bd6b13167ef654c81cffac36f7537",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/mattn/go-sqlite3",
+			"repository": "https://github.com/mattn/go-sqlite3",
+			"vcs": "git",
+			"revision": "9101028e5ca824d2baf0fbd91b9700e2669a6cd9",
+			"branch": "master",
 			"notests": true
 		},
 		{
@@ -356,12 +420,129 @@
 			"notests": true
 		},
 		{
+			"importpath": "golang.org/x/crypto/md4",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "88942b9c40a4c9d203b82b3731787b672d6e809b",
+			"branch": "master",
+			"path": "/md4",
+			"notests": true
+		},
+		{
 			"importpath": "golang.org/x/crypto/ripemd160",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
 			"revision": "374053ea96cb300f8671b8d3b07edeeb06e203b4",
 			"branch": "master",
 			"path": "/ripemd160",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/net/html",
+			"repository": "https://go.googlesource.com/net",
+			"vcs": "git",
+			"revision": "6078986fec03a1dcc236c34816c71b0e05018fda",
+			"branch": "master",
+			"path": "/html",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/encoding",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "/encoding",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/internal/format",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "internal/format",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/internal/gen",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "internal/gen",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/internal/language",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "internal/language",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/internal/tag",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "internal/tag",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/internal/utf8internal",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "internal/utf8internal",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/language",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "language",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/runes",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "runes",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/transform",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "transform",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/text/unicode/cldr",
+			"repository": "https://go.googlesource.com/text",
+			"vcs": "git",
+			"revision": "ab48842968a66deafa354805a8b031924668e059",
+			"branch": "master",
+			"path": "unicode/cldr",
+			"notests": true
+		},
+		{
+			"importpath": "google.golang.org/appengine/cloudsql",
+			"repository": "https://github.com/golang/appengine",
+			"vcs": "git",
+			"revision": "5bee14b453b4c71be47ec1781b0fa61c2ea182db",
+			"branch": "master",
+			"path": "/cloudsql",
 			"notests": true
 		},
 		{
