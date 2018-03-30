@@ -1,4 +1,4 @@
-// based on https://github.com/crewjam/saml
+// based on https://github.com/42wim/crewjam-saml
 package samlplugin
 
 import (
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crewjam/saml"
+	"github.com/42wim/crewjam-saml"
 	//	"github.com/davecgh/go-spew/spew"
 )
 

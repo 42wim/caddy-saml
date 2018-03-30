@@ -1,4 +1,4 @@
-// based on https://github.com/crewjam/saml
+// based on https://github.com/42wim/crewjam-saml
 // Package samlsp provides helpers that can be used to protect web
 // services using SAML.
 package samlplugin
@@ -13,8 +13,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/crewjam/saml"
-	"github.com/crewjam/saml/logger"
+	"github.com/42wim/crewjam-saml"
+	"github.com/42wim/crewjam-saml/logger"
 )
 
 const defaultTokenMaxAge = time.Hour
@@ -97,7 +97,7 @@ func New(opts Options) (*SAMLPlugin, error) {
 	}
 	// Some providers (like OneLogin) do not work properly unless the User-Agent header is specified.
 	// Setting the user agent prevents the 403 Forbidden errors.
-	req.Header.Set("User-Agent", "Golang; github.com/crewjam/saml")
+	req.Header.Set("User-Agent", "Golang; github.com/42wim/crewjam-saml")
 
 	for i := 0; true; i++ {
 		resp, err := c.Do(req)

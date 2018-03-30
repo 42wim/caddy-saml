@@ -2,6 +2,14 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/42wim/crewjam-saml",
+			"repository": "https://github.com/42wim/crewjam-saml",
+			"vcs": "git",
+			"revision": "d1575fe024c40bb2890ec051ae76975cbe2c830d",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/PuerkitoBio/goquery",
 			"repository": "https://github.com/PuerkitoBio/goquery",
 			"vcs": "git",
@@ -30,14 +38,6 @@
 			"repository": "https://github.com/beevik/etree",
 			"vcs": "git",
 			"revision": "af219c0c7ea1b67ec263c0b1b1b96d284a9181ce",
-			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/crewjam/saml",
-			"repository": "https://github.com/crewjam/saml",
-			"vcs": "git",
-			"revision": "e231b7a1204a93c343c1a5fa2374ca2f6572f715",
 			"branch": "master",
 			"notests": true
 		},

@@ -1,4 +1,4 @@
-// based on https://github.com/crewjam/saml
+// based on https://github.com/42wim/crewjam-saml
 package samlplugin
 
 import (
