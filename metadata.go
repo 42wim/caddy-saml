@@ -90,6 +90,13 @@ func (s *SAMLPlugin) GetEntityDescriptor() (string, error) {
 					Index:    "0",
 				},
 			},
+			SingleLogoutService: SingleLogoutService{
+				XMLName: xml.Name{
+					Local: "md:SingleLogoutService",
+				},
+				Binding:  "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+				Location: "https://" + s.ServiceProvider.MetadataURL.Hostname() + s.ServiceProvider.SloURL.Path,
+			},
 		},
 	}
 	b, err := xml.MarshalIndent(d, "", "    ")

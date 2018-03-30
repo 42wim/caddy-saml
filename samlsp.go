@@ -43,6 +43,8 @@ func New(opts Options) (*SAMLPlugin, error) {
 	metadataURL.Path = metadataURL.Path + "/saml/metadata"
 	acsURL := opts.URL
 	acsURL.Path = acsURL.Path + "/saml/acs"
+	sloURL := opts.URL
+	sloURL.Path = sloURL.Path + "/saml/slo"
 	logr := opts.Logger
 	if logr == nil {
 		logr = logger.DefaultLogger
@@ -60,6 +62,7 @@ func New(opts Options) (*SAMLPlugin, error) {
 			Certificate: opts.Certificate,
 			MetadataURL: metadataURL,
 			AcsURL:      acsURL,
+			SloURL:      sloURL,
 			IDPMetadata: opts.IDPMetadata,
 			ForceAuthn:  &opts.ForceAuthn,
 		},

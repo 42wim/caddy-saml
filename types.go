@@ -145,9 +145,9 @@ type SPSSODescriptor struct {
 	ProtocolSupportEnumeration string `xml:"protocolSupportEnumeration,attr"`
 	SigningKeyDescriptor       KeyDescriptor
 	EncryptionKeyDescriptor    KeyDescriptor
-	// SingleLogoutService        SingleLogoutService `xml:"SingleLogoutService"`
-	AuthnRequestsSigned  bool `xml:",attr"`
-	WantAssertionsSigned bool `xml:",attr"`
+	SingleLogoutService        SingleLogoutService `xml:"SingleLogoutService"`
+	AuthnRequestsSigned        bool                `xml:",attr"`
+	WantAssertionsSigned       bool                `xml:",attr"`
 
 	AssertionConsumerServices []AssertionConsumerService
 }
@@ -169,6 +169,7 @@ type KeyDescriptor struct {
 }
 
 type SingleLogoutService struct {
+	XMLName  xml.Name
 	Binding  string `xml:"Binding,attr"`
 	Location string `xml:"Location,attr"`
 }

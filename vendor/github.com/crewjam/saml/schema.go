@@ -143,6 +143,7 @@ type Issuer struct {
 // Element returns an etree.Element representing the object in XML form.
 func (a *Issuer) Element() *etree.Element {
 	el := etree.NewElement("saml:Issuer")
+	el.CreateAttr("xmlns:saml", "urn:oasis:names:tc:SAML:2.0:assertion")
 	if a.NameQualifier != "" {
 		el.CreateAttr("NameQualifier", a.NameQualifier)
 	}
@@ -265,6 +266,100 @@ func (r *Response) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 // UnmarshalXML implements xml.Unmarshaler
 func (r *Response) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias Response
+	aux := &struct {
+		IssueInstant RelaxedTime `xml:",attr"`
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+	if err := d.DecodeElement(&aux, &start); err != nil {
+		return err
+	}
+	r.IssueInstant = time.Time(aux.IssueInstant)
+	return nil
+}
+
+// LogoutRequest represents the SAML object of the same name.
+//
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+type LogoutRequest struct {
+	XMLName      xml.Name  `xml:"urn:oasis:names:tc:SAML:2.0:protocol LogoutRequest"`
+	ID           string    `xml:",attr"`
+	Version      string    `xml:",attr"`
+	IssueInstant time.Time `xml:",attr"`
+	Destination  string    `xml:",attr"`
+	Consent      string    `xml:",attr"`
+	Issuer       *Issuer   `xml:"urn:oasis:names:tc:SAML:2.0:assertion Issuer"`
+	Signature    *etree.Element
+	EncryptedID  *etree.Element `xml:"urn:oasis:names:tc:SAML:2.0:assertion EncryptedID"`
+	//Status       Status `xml:"urn:oasis:names:tc:SAML:2.0:protocol Status"`
+}
+
+// LogoutResponse represents the SAML object of the same name.
+//
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+type LogoutResponse struct {
+	XMLName      xml.Name  `xml:"urn:oasis:names:tc:SAML:2.0:protocol LogoutResponse"`
+	ID           string    `xml:",attr"`
+	InResponseTo string    `xml:",attr"`
+	Version      string    `xml:",attr"`
+	IssueInstant time.Time `xml:",attr"`
+	Destination  string    `xml:",attr"`
+	Consent      string    `xml:",attr"`
+	Issuer       *Issuer   `xml:"urn:oasis:names:tc:SAML:2.0:assertion Issuer"`
+	Signature    *etree.Element
+	Status       Status //`xml:"urn:oasis:names:tc:SAML:2.0:protocol Status"`
+}
+
+// Element returns an etree.Element representing the object in XML form.
+func (r *LogoutResponse) Element() *etree.Element {
+	el := etree.NewElement("samlp:LogoutResponse")
+	el.CreateAttr("xmlns:samlp", "urn:oasis:names:tc:SAML:2.0:protocol")
+
+	// Note: This namespace is not used by any element or attribute name, but
+	// is required so that the AttributeValue type element can have a value like
+	// "xs:string". If we don't declare it here, then it will be stripped by the
+	// cannonicalizer. This could be avoided by providing a prefix list to the
+	// cannonicalizer, but prefix lists do not appear to be implemented correctly
+	// in some libraries, so the safest action is to always produce XML that is
+	// (a) in cannonical form and (b) does not require prefix lists.
+	//el.CreateAttr("xmlns:xs", "http://www.w3.org/2001/XMLSchema")
+
+	el.CreateAttr("ID", r.ID)
+	if r.InResponseTo != "" {
+		el.CreateAttr("InResponseTo", r.InResponseTo)
+	}
+	el.CreateAttr("Version", r.Version)
+	el.CreateAttr("IssueInstant", r.IssueInstant.Format(timeFormat))
+	if r.Destination != "" {
+		el.CreateAttr("Destination", r.Destination)
+	}
+	if r.Issuer != nil {
+		el.AddChild(r.Issuer.Element())
+	}
+	if r.Signature != nil {
+		el.AddChild(r.Signature)
+	}
+	el.AddChild(r.Status.Element())
+	return el
+}
+
+// MarshalXML implements xml.Marshaler
+func (r *LogoutResponse) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	type Alias LogoutResponse
+	aux := &struct {
+		IssueInstant RelaxedTime `xml:",attr"`
+		*Alias
+	}{
+		IssueInstant: RelaxedTime(r.IssueInstant),
+		Alias:        (*Alias)(r),
+	}
+	return e.Encode(aux)
+}
+
+// UnmarshalXML implements xml.Unmarshaler
+func (r *LogoutResponse) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	type Alias LogoutResponse
 	aux := &struct {
 		IssueInstant RelaxedTime `xml:",attr"`
 		*Alias
@@ -521,11 +616,12 @@ func (a *Subject) Element() *etree.Element {
 //
 // See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.2.3
 type NameID struct {
-	NameQualifier   string `xml:",attr"`
-	SPNameQualifier string `xml:",attr"`
-	Format          string `xml:",attr"`
-	SPProvidedID    string `xml:",attr"`
-	Value           string `xml:",chardata"`
+	XMLName         xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:assertion NameID"`
+	NameQualifier   string   `xml:",attr"`
+	SPNameQualifier string   `xml:",attr"`
+	Format          string   `xml:",attr"`
+	SPProvidedID    string   `xml:",attr"`
+	Value           string   `xml:",chardata"`
 }
 
 // Element returns an etree.Element representing the object in XML form.

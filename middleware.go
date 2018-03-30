@@ -123,6 +123,31 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 		return s.next.ServeHTTP(w, r)
 	}
 
+	// single logout service HTTP-POST path
+	if r.URL.Path == s.ServiceProvider.SloURL.Path {
+		r.ParseForm()
+		nameid, respID, err := s.ServiceProvider.ParseLogoutRequest(r)
+		if err != nil {
+			fmt.Println(err)
+		}
+		cookies := s.ClientState.GetSessions(r)
+		session := s.findSession(cookies)
+		// if nameid matches the found session
+		// TODO actually search on the nameID session
+		if session.NameID == nameid.Value {
+			resp, err := s.ServiceProvider.MakeRedirectLogoutResponse(respID)
+			if err != nil {
+				fmt.Println(err)
+			}
+			s.ClientState.DeleteSession(w, r, session.AppID)
+			s.clearSession(session)
+			w.Header().Add("Location", resp.String())
+			w.WriteHeader(http.StatusFound)
+			return 302, nil
+		}
+		return 404, nil
+	}
+
 	if r.URL.Path == "/saml/logout" {
 		//fmt.Println("LOGOUT")
 		cookies := s.ClientState.GetSessions(r)
@@ -350,6 +375,8 @@ func (s *SAMLPlugin) Authorize(w http.ResponseWriter, r *http.Request, assertion
 
 		s.cache.Lock()
 		s.cacheMap[id1[0:20]] = session
+		// add for logout
+		s.cacheMap[assertion.Subject.NameID.Value] = session
 		s.cache.Unlock()
 
 		// if database configured

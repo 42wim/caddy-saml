@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/beevik/etree"
@@ -64,6 +65,10 @@ type ServiceProvider struct {
 	// on this host, i.e. https://example.com/saml/acs
 	AcsURL url.URL
 
+	// SloURL is the full URL to the SAML Single Logout Service endpoint
+	// on this host, i.e. https://example.com/saml/slo
+	SloURL url.URL
+
 	// IDPMetadata is the metadata from the identity provider.
 	IDPMetadata *EntityDescriptor
 
@@ -81,6 +86,10 @@ type ServiceProvider struct {
 	// ForceAuthn allows you to force re-authentication of users even if the user
 	// has a SSO session at the IdP.
 	ForceAuthn *bool
+
+	// signing context
+	signingContextMu sync.RWMutex
+	signingContext   *dsig.SigningContext
 }
 
 // MaxIssueDelay is the longest allowed time between when a SAML assertion is
@@ -167,6 +176,35 @@ func (sp *ServiceProvider) MakeRedirectAuthenticationRequest(relayState string) 
 	return req.Redirect(relayState), nil
 }
 
+// MakeRedirectLogoutResponse creates a SAML authentication request using
+// the HTTP-Redirect binding. It returns a URL that we will redirect the user to
+// in order to end the logout process.
+func (sp *ServiceProvider) MakeRedirectLogoutResponse(inResponseTo string) (*url.URL, error) {
+	resp, err := sp.MakeLogoutResponse(inResponseTo, sp.GetSLOBindingLocation(HTTPRedirectBinding))
+	if err != nil {
+		return nil, err
+	}
+
+	// create the redirect URL (base64 / flate query)
+	url := resp.Redirect()
+
+	// do the signing
+	// this code comes from github.com/russellhaering/gosaml2
+	query := url.Query()
+	ctx := sp.SigningContext()
+	query.Add("SigAlg", ctx.GetSignatureMethodIdentifier())
+	var rawSignature []byte
+	if rawSignature, err = ctx.SignString(query.Encode()); err != nil {
+		return url, fmt.Errorf("unable to sign query string of redirect URL: %v", err)
+	}
+
+	// Now add base64 encoded Signature
+	query.Add("Signature", base64.StdEncoding.EncodeToString(rawSignature))
+
+	url.RawQuery = query.Encode()
+	return url, nil
+}
+
 // Redirect returns a URL suitable for using the redirect binding with the request
 func (req *AuthnRequest) Redirect(relayState string) *url.URL {
 	w := &bytes.Buffer{}
@@ -199,6 +237,19 @@ func (sp *ServiceProvider) GetSSOBindingLocation(binding string) string {
 		for _, singleSignOnService := range idpSSODescriptor.SingleSignOnServices {
 			if singleSignOnService.Binding == binding {
 				return singleSignOnService.Location
+			}
+		}
+	}
+	return ""
+}
+
+// GetSLOBindingLocation returns URL for the IDP's Single Logout Service binding
+// of the specified type (HTTPRedirectBinding or HTTPPostBinding)
+func (sp *ServiceProvider) GetSLOBindingLocation(binding string) string {
+	for _, idpSSODescriptor := range sp.IDPMetadata.IDPSSODescriptors {
+		for _, singleLogoutService := range idpSSODescriptor.SingleLogoutServices {
+			if singleLogoutService.Binding == binding {
+				return singleLogoutService.Location
 			}
 		}
 	}
@@ -372,6 +423,20 @@ func (ivr *InvalidResponseError) Error() string {
 	return fmt.Sprintf("Authentication failed")
 }
 
+// InvalidRequestError is the error produced by ParseLogoutRequest when it fails.
+// The underlying error is in PrivateErr. Request is the request as it was
+// known at the time validation failed. Now is the time that was used to validate
+// time-dependent parts of the assertion.
+type InvalidRequestError struct {
+	PrivateErr error
+	Request    string
+	Now        time.Time
+}
+
+func (ivr *InvalidRequestError) Error() string {
+	return fmt.Sprintf("Authentication failed")
+}
+
 // ParseResponse extracts the SAML IDP response received in req, validates
 // it, and returns the verified attributes of the request.
 //
@@ -495,6 +560,86 @@ func (sp *ServiceProvider) ParseResponse(req *http.Request, possibleRequestIDs [
 	}
 
 	return assertion, nil
+}
+
+// ParseLogoutRequest extracts the SAML IDP logout request received in req, validates
+// it, and returns the NameID and Request ID
+//
+// This function handles decrypting the message, verifying the digital
+// signature on the assertion, and verifying that the specified conditions
+// and properties are met.
+//
+// If the function fails it will return an InvalidRequestError whose
+// properties are useful in describing which part of the parsing process
+// failed. However, to discourage inadvertent disclosure the diagnostic
+// information, the Error() method returns a static string.
+func (sp *ServiceProvider) ParseLogoutRequest(r *http.Request) (*NameID, string, error) {
+	var nameID *NameID
+	now := TimeNow()
+	retErr := &InvalidRequestError{
+		Now:     now,
+		Request: r.PostForm.Get("SAMLRequest"),
+	}
+
+	rawRequestBuf, err := base64.StdEncoding.DecodeString(r.PostForm.Get("SAMLRequest"))
+	if err != nil {
+		retErr.PrivateErr = fmt.Errorf("cannot parse base64: %s", err)
+		return nil, "", retErr
+	}
+	retErr.Request = string(rawRequestBuf)
+
+	// do some validation first before we decrypt
+	req := LogoutRequest{}
+	if err := xml.Unmarshal(rawRequestBuf, &req); err != nil {
+		retErr.PrivateErr = fmt.Errorf("cannot unmarshal request: %s", err)
+		return nil, "", retErr
+	}
+	fmt.Printf("%#v", req)
+
+	if req.Destination != sp.SloURL.String() {
+		retErr.PrivateErr = fmt.Errorf("`Destination` does not match SloURL (expected %q)", sp.SloURL.String())
+		return nil, "", retErr
+	}
+
+	if req.Issuer.Value != sp.IDPMetadata.EntityID {
+		retErr.PrivateErr = fmt.Errorf("Issuer does not match the IDP metadata (expected %q)", sp.IDPMetadata.EntityID)
+		return nil, "", retErr
+	}
+
+	// decrypt the response
+	if req.EncryptedID != nil {
+		doc := etree.NewDocument()
+		if err := doc.ReadFromBytes(rawRequestBuf); err != nil {
+			retErr.PrivateErr = err
+			return nil, "", retErr
+		}
+
+		if err := sp.validateSigned(doc.Root()); err != nil {
+			retErr.PrivateErr = err
+			return nil, "", retErr
+		}
+
+		el := doc.FindElement("//EncryptedID/EncryptedData")
+		plaintextNameID, err := xmlenc.Decrypt(sp.Key, el)
+		if err != nil {
+			retErr.PrivateErr = fmt.Errorf("failed to decrypt request: %s", err)
+			return nil, "", retErr
+		}
+		retErr.Request = string(plaintextNameID)
+
+		doc = etree.NewDocument()
+		if err := doc.ReadFromBytes(plaintextNameID); err != nil {
+			retErr.PrivateErr = fmt.Errorf("cannot parse plaintext request %v", err)
+			return nil, "", retErr
+		}
+		nameID = &NameID{}
+		if err := xml.Unmarshal(plaintextNameID, nameID); err != nil {
+			retErr.PrivateErr = err
+			return nil, "", retErr
+		}
+
+	}
+	return nameID, req.ID, nil
 }
 
 // validateAssertion checks that the conditions specified in assertion match
@@ -664,4 +809,75 @@ func (sp *ServiceProvider) validateSignature(el *etree.Element) error {
 
 	_, err = validationContext.Validate(el)
 	return err
+}
+
+// MakeLogoutResponse produces a new LogoutResponse object for idpURL in response to inResponseTo ID
+func (sp *ServiceProvider) MakeLogoutResponse(inResponseTo string, idpURL string) (*LogoutResponse, error) {
+	resp := LogoutResponse{
+		Destination:  idpURL,
+		ID:           fmt.Sprintf("id-%x", randomBytes(20)),
+		InResponseTo: inResponseTo,
+		IssueInstant: TimeNow(),
+		Version:      "2.0",
+		Issuer: &Issuer{
+			Value: sp.MetadataURL.String(),
+		},
+		Status: Status{
+			StatusCode: StatusCode{
+				Value: StatusSuccess,
+			},
+		},
+	}
+	return &resp, nil
+}
+
+// Redirect returns a URL suitable for using the redirect binding with the request
+func (resp *LogoutResponse) Redirect() *url.URL {
+	w := &bytes.Buffer{}
+	w1 := base64.NewEncoder(base64.StdEncoding, w)
+	w2, _ := flate.NewWriter(w1, 9)
+	doc := etree.NewDocument()
+	doc.SetRoot(resp.Element())
+	if _, err := doc.WriteTo(w2); err != nil {
+		panic(err)
+	}
+	w2.Close()
+	w1.Close()
+
+	rv, _ := url.Parse(resp.Destination)
+
+	query := rv.Query()
+	query.Set("SAMLResponse", string(w.Bytes()))
+
+	rv.RawQuery = query.Encode()
+
+	return rv
+}
+
+// MemoryX509KeyStore is used for the dsig NewDefaultSigningContext
+type MemoryX509KeyStore struct {
+	privateKey *rsa.PrivateKey
+	cert       []byte
+}
+
+// GetKeyPair return the private key and cert. Fullfils the dsig.X509KeyStore interface
+func (ks *MemoryX509KeyStore) GetKeyPair() (*rsa.PrivateKey, []byte, error) {
+	return ks.privateKey, ks.cert, nil
+}
+
+// SigningContext returns a dsig.SigningContext which can sign a LogoutResponse
+func (sp *ServiceProvider) SigningContext() *dsig.SigningContext {
+	sp.signingContextMu.RLock()
+	signingContext := sp.signingContext
+	sp.signingContextMu.RUnlock()
+
+	if signingContext != nil {
+		return signingContext
+	}
+
+	sp.signingContextMu.Lock()
+	defer sp.signingContextMu.Unlock()
+	sp.signingContext = dsig.NewDefaultSigningContext(&MemoryX509KeyStore{sp.Key, sp.Certificate.Raw})
+	sp.signingContext.SetSignatureMethod(dsig.RSASHA1SignatureMethod)
+	return sp.signingContext
 }
