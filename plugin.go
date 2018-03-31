@@ -199,6 +199,15 @@ func hasRequireAll(v []string) bool {
 	return false
 }
 
+func hasRequireNoSession(v []string) bool {
+	for _, acl := range v {
+		if strings.Contains(acl, "require-nosession") {
+			return true
+		}
+	}
+	return false
+}
+
 func isAuthorized(v []string, token *AuthorizationToken) bool {
 	if hasRequireAll(v) {
 		return isAuthorizedAnd(v, token)

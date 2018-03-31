@@ -158,43 +158,21 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 
 	for k, v := range s.Map {
 		if strings.HasPrefix(r.URL.Path, k) {
-			var token *AuthorizationToken
-			if s.EnableSessions {
-				cookies := s.ClientState.GetSessions(r)
+			token := s.findToken(w, r)
 
-				// no cookies
-				if len(cookies) == 0 {
-					//fmt.Println("no cookies")
-					s.RequireAccount(w, r)
-					return 302, nil
-				}
-
-				// find our session base on the cookies
-				session := s.findSession(cookies)
-
-				// did not find a session
-				if session.SessionID == "" {
-					//fmt.Println("did not found a session")
-					s.RequireAccount(w, r)
-					return 302, nil
-				}
-
-				err := json.Unmarshal(session.Token, &token)
-				if err != nil {
-					//fmt.Println("unmarshalling failed", err)
-					s.clearSession(session)
-					s.RequireAccount(w, r)
-					return 302, nil
-				}
-			} else {
-				if token = s.GetAuthorizationToken(r); token != nil {
-					r = r.WithContext(WithToken(r.Context(), token))
-				} else {
-					s.RequireAccount(w, r)
-					return 302, nil
-				}
+			// if we require no session, we have to allow this
+			if token == nil && hasRequireNoSession(v) {
+				return s.next.ServeHTTP(w, r)
 			}
+
+			// if we have no token, get one!
+			if token == nil {
+				s.RequireAccount(w, r)
+				return 302, nil
+			}
+
 			if isAuthorized(v, token) {
+				// if we don't require a session directly go to the next handler
 				setHeaders(r, token)
 				if dumpAttributes(v) {
 					spew.Fdump(w, token)
@@ -532,4 +510,39 @@ func (s *SAMLPlugin) searchDb(cookies map[string]string) *Session {
 		}
 	}
 	return session
+}
+
+func (s *SAMLPlugin) findToken(w http.ResponseWriter, r *http.Request) *AuthorizationToken {
+	var token *AuthorizationToken
+	if s.EnableSessions {
+		cookies := s.ClientState.GetSessions(r)
+
+		// no cookies
+		if len(cookies) == 0 {
+			return token
+		}
+
+		// find our session base on the cookies
+		session := s.findSession(cookies)
+
+		// did not find a session
+		if session.SessionID == "" {
+			//fmt.Println("did not found a session")
+			return token
+		}
+
+		err := json.Unmarshal(session.Token, &token)
+		if err != nil {
+			//fmt.Println("unmarshalling failed", err)
+			s.clearSession(session)
+			return token
+		}
+	} else {
+		if token = s.GetAuthorizationToken(r); token != nil {
+			r = r.WithContext(WithToken(r.Context(), token))
+		} else {
+			return token
+		}
+	}
+	return token
 }
