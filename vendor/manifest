@@ -5,7 +5,7 @@
 			"importpath": "github.com/42wim/crewjam-saml",
 			"repository": "https://github.com/42wim/crewjam-saml",
 			"vcs": "git",
-			"revision": "d1575fe024c40bb2890ec051ae76975cbe2c830d",
+			"revision": "989e34676e18110f143d0cdb44ba3f5bc8c8a635",
 			"branch": "master",
 			"notests": true
 		},

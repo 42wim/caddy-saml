@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/beevik/etree"
 	"github.com/42wim/crewjam-saml/logger"
 	"github.com/42wim/crewjam-saml/xmlenc"
+	"github.com/beevik/etree"
 	dsig "github.com/russellhaering/goxmldsig"
 	"github.com/russellhaering/goxmldsig/etreeutils"
 )
@@ -594,7 +594,7 @@ func (sp *ServiceProvider) ParseLogoutRequest(r *http.Request) (*NameID, string,
 		retErr.PrivateErr = fmt.Errorf("cannot unmarshal request: %s", err)
 		return nil, "", retErr
 	}
-	fmt.Printf("%#v", req)
+	//fmt.Printf("ParseLogoutRequest %#v\n", req)
 
 	if req.Destination != sp.SloURL.String() {
 		retErr.PrivateErr = fmt.Errorf("`Destination` does not match SloURL (expected %q)", sp.SloURL.String())
