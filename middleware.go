@@ -519,7 +519,8 @@ func (s *SAMLPlugin) searchDb(cookies map[string]string) *Session {
 	for cookie := range cookies {
 		err := s.Db.Where(&Session{AppID: cookie}).First(&session)
 		if len(err.GetErrors()) > 0 {
-			fmt.Printf("searchDb errors: %#v", err.GetErrors())
+			fmt.Println("searchDb errors")
+			spew.Dump(err.GetErrors())
 		}
 		if session.SessionID != "" {
 			//spew.Dump(session)
