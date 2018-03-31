@@ -116,11 +116,10 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 					parseErr.Response, parseErr.Now, parseErr.PrivateErr)
 			}
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return s.next.ServeHTTP(w, r)
+			return http.StatusForbidden, nil
 		}
-
 		s.Authorize(w, r, assertion)
-		return s.next.ServeHTTP(w, r)
+		return 302, nil
 	}
 
 	// single logout service HTTP-POST path
