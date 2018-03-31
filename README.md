@@ -1,7 +1,7 @@
 # caddy-saml
 
 WIP
-Based heavily on https://github.com/crewjam/saml and https://github.com/RobotsAndPencils/go-saml
+Based heavily on https://github.com/crewjam/saml and https://github.com/RobotsAndPencils/go-saml with a little bit of https://github.com/russellhaering/gosaml2
 
 ## Usecase
 Our usecase is to use caddy as a reverse proxy with shibboleth support (instead of using apache,mod_shib and shibd)
@@ -36,6 +36,7 @@ http://:80 {
         vault_server https://vault.yourdomain.com
         vault_path secret/projects/caddy-saml/yourdomain.com
         /path1 valid-user
+        /path1 require-nosession
         /path2 mail email@domain.com
         /hello uid testuid
         /hello dump-attributes
