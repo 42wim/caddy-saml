@@ -147,15 +147,6 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 		return 404, nil
 	}
 
-	if r.URL.Path == "/saml/logout" {
-		//fmt.Println("LOGOUT")
-		cookies := s.ClientState.GetSessions(r)
-		session := s.findSession(cookies)
-		s.ClientState.DeleteSession(w, r, session.AppID)
-		s.clearSession(session)
-		return 302, nil
-	}
-
 	for k, v := range s.Map {
 		if strings.HasPrefix(r.URL.Path, k) {
 			token := s.findToken(w, r)
