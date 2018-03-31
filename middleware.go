@@ -115,7 +115,6 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 				s.ServiceProvider.Logger.Printf("RESPONSE: ===\n%s\n===\nNOW: %s\nERROR: %s",
 					parseErr.Response, parseErr.Now, parseErr.PrivateErr)
 			}
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return http.StatusForbidden, nil
 		}
 		s.Authorize(w, r, assertion)
