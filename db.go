@@ -13,6 +13,9 @@ type DB struct {
 }
 
 func NewDB(uri string) *DB {
+	if uri == "" {
+		return nil
+	}
 	fmt.Println("Opening the connection to the database...")
 	uri = uri + "?charset=utf8&parseTime=True&loc=Local"
 	db, err := gorm.Open("mysql", uri)
