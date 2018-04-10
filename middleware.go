@@ -146,6 +146,19 @@ func (s *SAMLPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 		return 404, nil
 	}
 
+	if r.URL.Path == "/saml/session" {
+		token := s.findToken(w, r)
+		if token == nil {
+			w.Write([]byte("A valid session was not found"))
+			return 200, nil
+		}
+		if !s.EnableSessions {
+			w.Write([]byte("Sessions are not enabled but a token has been found"))
+		}
+		spew.Fdump(w, token)
+		return 200, nil
+	}
+
 	for k, v := range s.Map {
 		if strings.HasPrefix(r.URL.Path, k) {
 			token := s.findToken(w, r)
